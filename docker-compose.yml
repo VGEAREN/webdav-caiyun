@@ -1,0 +1,15 @@
+version: '3'
+services:
+  webdav-aliyundriver:
+    image: vgearen/caiyun-webdav
+    container_name: caiyun-webdav
+    restart: always
+    volumes:
+      - /etc/localtime:/etc/localtime
+    ports:
+      - "8080:8080"
+    tty: true
+    environment:
+      - TZ=Asia/Shanghai
+      - ALIYUNDRIVE_REFRESH_TOKEN=<change me>
+      - ALIYUNDRIVE_AUTH_PASSWORD=<change me>

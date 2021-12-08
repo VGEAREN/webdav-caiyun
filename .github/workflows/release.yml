@@ -1,0 +1,31 @@
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+name: Upload Release Asset
+
+jobs:
+  build:
+    name: Upload Release Asset
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: master
+      - name: Setup java
+        uses: actions/setup-java@v2
+        with:
+          java-version: '8'
+          distribution: 'adopt'
+      - name: Build with Maven
+        run: |
+          mvn clean package -Dmaven.test.skip=true
+          mv ./target/*.jar ./target/caiyun-webdav.jar
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/v')
+        with:
+          files: ./target/caiyun-webdav.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
