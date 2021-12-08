@@ -2,9 +2,7 @@
 
 # 和彩云Webdav
 
-本项目实现了和彩云网盘的Webdav协议，可以通过此协议将网盘挂载到Windows或者Nas中。
-
-由于本人时间精力水平有限，本项目是基于 [zxbu/webdav-aliyundriver](https://github.com/zxbu/webdav-aliyundriver) 修改实现的，如有侵权请联系删除。
+本项目实现了和彩云网盘的Webdav协议，可以通过此协议将网盘挂载到Windows或者Nas中。项目是基于 [zxbu/webdav-aliyundriver](https://github.com/zxbu/webdav-aliyundriver) 修改实现的，如有侵权请联系删除。
 
 
 
