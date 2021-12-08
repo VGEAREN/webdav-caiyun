@@ -17,9 +17,9 @@
 
 
 ### Jar包运行
-
+[点击下载JAR](https://github.com/VGEAREN/webdav-caiyun/releases/download/v1.0.0/caiyun-webdav.jar)
 ```bash
-[root@localhost ~]# java -jar caiyun.jar --caiyun.account="orches-c-account" --caiyun.token="orches-c-token" --caiyun.encrypt="orches-i-account-encrypt" --caiyun.tel="user telnum"
+[root@localhost ~]# java -jar caiyun-webdav.jar --caiyun.account="orches-c-account" --caiyun.token="orches-c-token" --caiyun.encrypt="orches-i-account-encrypt" --caiyun.tel="user telnum"
 ```
 
 其中：
@@ -62,7 +62,8 @@ services:
 
 ```
 
-
+## 获取Cookie的方法
+打开网页版和彩云，Windows下按`F12`调出`开发者工具`，依次选择 **应用程序** -> **存储** -> **Cookie**
 
 ## 使用教程
 
