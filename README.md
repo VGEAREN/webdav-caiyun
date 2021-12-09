@@ -22,11 +22,12 @@
 
 其中：
 
-- `account`：网页版和彩云Cookie中的 **ORCHES-C-ACCOUNT** 字段
-- `token`：Cookie中的 **ORCHES-C-TOKEN** 
-- `encrypt`：Cookie中的 **ORCHES-I-ACCOUNT-ENCRYPT** 
-- `tel`： 和彩云的注册号码
-
+- `caiyun.account`：网页版和彩云Cookie中的 **ORCHES-C-ACCOUNT** 字段
+- `caiyun.token`：Cookie中的 **ORCHES-C-TOKEN** 
+- `caiyun.encrypt`：Cookie中的 **ORCHES-I-ACCOUNT-ENCRYPT** 
+- `caiyun.tel`： 和彩云的注册号码
+- `caiyun.auth.user-name`：`可选` 默认admin
+- `caiyun.auth.password`：`可选` 默认admin
 
 
 ### Docker
@@ -35,7 +36,7 @@
 [root@localhost ~]# docker run -d --name=caiyun-webdav --restart=unless-stopped -p 8080:8080  -v /etc/localtime:/etc/localtime -e TZ="Asia/Shanghai" -e JAVA_OPTS="-Xmx512m" -e CAIYUN_ACCOUNT="ORCHES-C-ACCOUNT" -e CAIYUN_TOKEN="ORCHES-C-TOKEN" -e CAIYUN_ENCRYPT="ORCHES-I-ACCOUNT-ENCRYPT" -e CAIYUN_TEL="YOUR PHONE" vgearen/caiyun-webdav
 ```
 
-
+默认认证账号密码admin/admin，需要修改添加参数` -e CAIYUN_AUTH_USER_NAME="USERNAME" -e CAIYUN_AUTH_PASSWORD="PASSWORD"` 
 
 ### Docker Compose
 
@@ -57,6 +58,8 @@ services:
       - CAIYUN_TOKEN=<change me>
       - CAIYUN_ENCRYPT=<change me>
       - CAIYUN_TEL=<change me>
+      # - CAIYUN_AUTH_USER_NAME=<change me>
+      # - CAIYUN_AUTH_PASSWORD=<change me>
 
 ```
 
