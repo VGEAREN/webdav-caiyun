@@ -22,6 +22,7 @@ import com.vgearen.webdavcaiyundrive.model.operatefolder.CreateCatalogExtReq;
 import com.vgearen.webdavcaiyundrive.model.operatefolder.CreateFolderRequest;
 import com.vgearen.webdavcaiyundrive.model.operatefolder.RenameFolderRequest;
 import com.vgearen.webdavcaiyundrive.model.operatefolder.result.CatalogInfo;
+import com.vgearen.webdavcaiyundrive.model.operatefolder.result.CatalogInfoData;
 import com.vgearen.webdavcaiyundrive.model.upload.PreUploadRequest;
 import com.vgearen.webdavcaiyundrive.model.upload.UploadContentList;
 import com.vgearen.webdavcaiyundrive.model.upload.result.PreUploadData;
@@ -370,8 +371,8 @@ public class CaiyunDriverClientService {
         createFileRequest.setCreateCatalogExtReq(createCatalogExtReq);
 
         String json = client.post("/orchestration/personalCloud/catalog/v1.0/createCatalogExt", createFileRequest);
-        CaiyunResponse<CatalogInfo> createFolderRes = JsonUtil.readValue(json, new TypeReference<CaiyunResponse<CatalogInfo>>() {});
-        CatalogInfo catalogInfo = createFolderRes.getData();
+        CaiyunResponse<CatalogInfoData> createFolderRes = JsonUtil.readValue(json, new TypeReference<CaiyunResponse<CatalogInfoData>>() {});
+        CatalogInfo catalogInfo = createFolderRes.getData().getCatalogInfo();
         if (catalogInfo.getCatalogName() == null) {
             LOGGER.error("创建目录{}失败: {}",path, json);
         }
