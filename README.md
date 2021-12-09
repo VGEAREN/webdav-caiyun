@@ -65,7 +65,7 @@ services:
 
 ## 获取Cookie的方法
 打开网页版和彩云，Windows下按`F12`调出`开发者工具`，依次选择 **应用程序** -> **存储** -> **Cookie**
-
+[获取Cookie的方法](https://github.com/VGEAREN/webdav-caiyun/wiki/Cookie%E8%8E%B7%E5%8F%96)
 ## 使用教程
 
 1. [Windows RaiDrive挂载]()
