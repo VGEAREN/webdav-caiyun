@@ -69,7 +69,7 @@ services:
 ## 使用教程
 
 1. [Windows RaiDrive挂载]()
-2. [Qnap威联通挂载]()
+2. [Qnap威联通挂载](https://github.com/VGEAREN/webdav-caiyun/wiki/Qnap%E5%A8%81%E8%81%94%E9%80%9A%E6%8C%82%E8%BD%BD%E5%92%8C%E5%BD%A9%E4%BA%91)
 
 
 
