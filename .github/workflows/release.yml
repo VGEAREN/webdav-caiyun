@@ -27,5 +27,6 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v')
         with:
           files: ./target/caiyun-webdav.jar
+          name: Caiyun-WebDAV ${{github.ref_name}}
         env:
           GITHUB_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
