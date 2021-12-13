@@ -86,8 +86,8 @@ public class CaiyunDriverClientService {
         });
         Set<CFile> all = new LinkedHashSet<>(cFiles);
         // 获取上传中的文件列表
-//        Collection<CFile> virtualCFiles = virtualCFileService.list(fileId);
-//        all.addAll(virtualCFiles);
+        Collection<CFile> virtualCFiles = virtualCFileService.list(fileId);
+        all.addAll(virtualCFiles);
         return all;
     }
 
