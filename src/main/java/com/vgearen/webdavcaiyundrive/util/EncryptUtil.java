@@ -36,9 +36,5 @@ public class EncryptUtil {
     }
 
     public static void main(String[] args) {
-        String a = "{\"catalogID\":\"00019700101000000001\",\"sortDirection\":1,\"startNumber\":1,\"endNumber\":100,\"filterType\":0,\"catalogSortType\":0,\"contentSortType\":0,\"commonAccountInfo\":{\"account\":\"13802885184\",\"accountType\":1}}";
-        String b = "2021-12-07 09:36:30";
-        String c = "eg0eCmedo2jhxsv7";
-        System.out.println(getNewSign(a, b, c));
     }
 }

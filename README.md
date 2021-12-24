@@ -15,7 +15,7 @@
 
 
 ### Jar包运行
-[点击下载JAR](https://github.com/VGEAREN/webdav-caiyun/releases/download/v1.0.0/caiyun-webdav.jar)
+[点击下载JAR](https://github.com/VGEAREN/webdav-caiyun/releases/latest)
 ```bash
 [root@localhost ~]# java -jar caiyun-webdav.jar --caiyun.account="orches-c-account" --caiyun.token="orches-c-token" --caiyun.encrypt="orches-i-account-encrypt" --caiyun.tel="user telnum"
 ```
