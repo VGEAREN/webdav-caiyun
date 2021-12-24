@@ -311,6 +311,7 @@ public class CaiyunDriverClientService {
                 LOGGER.info("文件正在上传。文件名：{}，当前进度：{}/{}", path, (i + 1), chunkCount);
             } catch (IOException e) {
                 virtualCFileService.remove(parent.getFileId(), uploadResult.getNewContentIDList().get(0).getContentID());
+                e.printStackTrace();
                 throw new WebdavException(e);
             }
         }
