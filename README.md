@@ -74,7 +74,7 @@ services:
 
 | 客户端           | 兼容情况 |
 | ---------------- | -------- |
-| QNAP HyBirdMount | ✅        |
+| QNAP HybirdMount | ✅        |
 | RaiDrive         | ✅        |
 | macOS Finder     | ✅        |
 | Windows原生      | ✅        |
