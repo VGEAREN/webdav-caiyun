@@ -68,6 +68,19 @@ services:
 
 [获取Cookie的方法](https://github.com/VGEAREN/webdav-caiyun/wiki/Cookie%E8%8E%B7%E5%8F%96)
 
+
+
+## 客户端兼容性
+
+| 客户端           | 兼容情况 |
+| ---------------- | -------- |
+| QNAP HyBirdMount | ✅        |
+| RaiDrive         | ✅        |
+| macOS Finder     | ✅        |
+| Windows原生      | ✅        |
+
+
+
 ## 使用教程
 
 1. [Windows RaiDrive挂载]()

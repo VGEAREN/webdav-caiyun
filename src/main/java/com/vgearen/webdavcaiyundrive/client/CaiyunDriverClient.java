@@ -3,9 +3,8 @@ package com.vgearen.webdavcaiyundrive.client;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.vgearen.webdavcaiyundrive.config.CaiyunProperties;
 import com.vgearen.webdavcaiyundrive.model.CaiyunResponse;
-import com.vgearen.webdavcaiyundrive.util.JsonUtil;
 import com.vgearen.webdavcaiyundrive.util.EncryptUtil;
-import com.vgearen.webdavcaiyundrive.util.UrlEncodeUtil;
+import com.vgearen.webdavcaiyundrive.util.JsonUtil;
 import net.sf.webdav.exceptions.WebdavException;
 import okhttp3.*;
 import okio.Buffer;
@@ -15,11 +14,6 @@ import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
@@ -29,6 +23,7 @@ public class CaiyunDriverClient {
     private static final Logger LOGGER = LoggerFactory.getLogger(CaiyunDriverClient.class);
     private OkHttpClient okHttpClient;
     private CaiyunProperties caiyunProperties;
+    private static int BUF_SIZE = 65536;
     public CaiyunDriverClient(CaiyunProperties caiyunProperties) {
 
         String token = caiyunProperties.getToken();
@@ -110,16 +105,23 @@ public class CaiyunDriverClient {
     public Response download(String url, HttpServletRequest httpServletRequest, long size ) {
         Request.Builder builder = new Request.Builder().header("referer", "https://yun.139.com/w/");
         String range = httpServletRequest.getHeader("range");
+        boolean isMac = false;
+        String userAgent = httpServletRequest.getHeader("User-Agent").toLowerCase();
+        if (userAgent.contains("darwin") && userAgent.contains("webdavfs")) {
+            isMac = true;
+        }
         if (range != null) {
             // 如果range最后 >= size， 则去掉
             String[] split = range.split("-");
             if (split.length == 2) {
                 String end = split[1];
                 if (Long.parseLong(end) >= size) {
-                    range = range.substring(0, range.lastIndexOf('-') + 1);
+                    range = (range.substring(0, range.lastIndexOf('-') + 1) + size);
                 }
+                builder.header("range", range);
+            } else if (!isMac){
+                builder.header("range", range);
             }
-            builder.header("range", range);
         }
 
         String ifRange = httpServletRequest.getHeader("if-range");
@@ -226,50 +228,5 @@ public class CaiyunDriverClient {
             return url;
         }
         return caiyunProperties.getUrl() + url;
-    }
-
-    private void deleteRefreshTokenFile() {
-        String refreshTokenPath = caiyunProperties.getWorkDir() + "refresh-token";
-        Path path = Paths.get(refreshTokenPath);
-        try {
-            Files.delete(path);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private String readRefreshToken() {
-        String refreshTokenPath = caiyunProperties.getWorkDir() + "refresh-token";
-        Path path = Paths.get(refreshTokenPath);
-
-        if (!Files.exists(path, LinkOption.NOFOLLOW_LINKS)) {
-            try {
-                Files.createDirectories(path.getParent());
-                Files.createFile(path);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        try {
-            byte[] bytes = Files.readAllBytes(path);
-            if (bytes.length != 0) {
-                return new String(bytes, StandardCharsets.UTF_8);
-            }
-        } catch (IOException e) {
-            LOGGER.warn("读取refreshToken文件 {} 失败: ", refreshTokenPath, e);
-        }
-//        writeRefreshToken(caiyunProperties.getRefreshToken());
-//        return caiyunProperties.getRefreshToken();
-        return null;
-    }
-
-    private void writeRefreshToken(String newRefreshToken) {
-        String refreshTokenPath = caiyunProperties.getWorkDir() + "refresh-token";
-        try {
-            Files.write(Paths.get(refreshTokenPath), newRefreshToken.getBytes(StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            LOGGER.warn("写入refreshToken文件 {} 失败: ", refreshTokenPath, e);
-        }
-//        caiyunProperties.setRefreshToken(newRefreshToken);
     }
 }

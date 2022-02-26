@@ -55,8 +55,8 @@ public class CaiyunDriverClientService {
 
     private static Cache<String, Set<CFile>> cFilesCache = Caffeine.newBuilder()
             .initialCapacity(128)
-            .maximumSize(1024)
-            .expireAfterWrite(5, TimeUnit.SECONDS)
+            .maximumSize(65535)
+            .expireAfterWrite(20, TimeUnit.SECONDS)
             .build();
 
     private final CaiyunDriverClient client;
@@ -241,7 +241,7 @@ public class CaiyunDriverClientService {
         CaiyunResponse<DownloadData> downloadUrl = JsonUtil.readValue(json, new TypeReference<CaiyunResponse<DownloadData>>() {});
         String url = downloadUrl.getData().getDownloadURL();
         LOGGER.debug("{} url = {}", path, url);
-        return client.download(url.toString(), request, size);
+        return client.download(url, request, size);
     }
 
 
@@ -261,6 +261,12 @@ public class CaiyunDriverClientService {
             }
             remove(path);
         }
+
+        if(pathInfo.getName().startsWith("._") || pathInfo.getName().startsWith("~$") || ".DS_Store".equals(pathInfo.getName())){
+            // 临时文件不上传
+            return;
+        }
+
 
         int chunkCount = (int) Math.ceil(((double) size) / chunkSize); // 进1法
         CommonAccountInfo commonAccountInfo = new CommonAccountInfo();
