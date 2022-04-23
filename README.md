@@ -70,6 +70,22 @@ services:
 
 
 
+## Cookie更新方法
+
+- 坑爹和彩云，研究了一下发现没有更新token，登录后就直接30天过期，过期必须重新登录。
+
+- 登录的手机验证码无法关闭（App上的关闭就是个摆设），所以登录没戏了。
+
+- 曲线救国：
+
+  通过`http://localhost:8080/update?token=[token值]`更新token，localhost改为webdav的ip即可
+
+  同理，如果需要更新其他的可以直接加参数：`account`、`encrypt`、`tel`
+
+  **如果重启应用就会用回原来的token**
+
+
+
 ## 客户端兼容性
 
 | 客户端           | 兼容情况 |

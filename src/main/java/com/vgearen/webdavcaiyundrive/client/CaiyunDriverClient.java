@@ -2,6 +2,7 @@ package com.vgearen.webdavcaiyundrive.client;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.vgearen.webdavcaiyundrive.config.CaiyunProperties;
+import com.vgearen.webdavcaiyundrive.config.Cookie;
 import com.vgearen.webdavcaiyundrive.model.CaiyunResponse;
 import com.vgearen.webdavcaiyundrive.util.EncryptUtil;
 import com.vgearen.webdavcaiyundrive.util.JsonUtil;
@@ -24,6 +25,7 @@ public class CaiyunDriverClient {
     private OkHttpClient okHttpClient;
     private CaiyunProperties caiyunProperties;
     private static int BUF_SIZE = 65536;
+
     public CaiyunDriverClient(CaiyunProperties caiyunProperties) {
 
         String token = caiyunProperties.getToken();
@@ -31,22 +33,27 @@ public class CaiyunDriverClient {
         String encrypt = caiyunProperties.getEncrypt();
         String tel = caiyunProperties.getTel();
 
-        if(!StringUtils.hasLength(token)){
+        if (!StringUtils.hasLength(token)) {
             LOGGER.error("token为空");
-        }else if(!StringUtils.hasLength(account)){
+        } else if (!StringUtils.hasLength(account)) {
             LOGGER.error("account为空");
-        }else if(!StringUtils.hasLength(encrypt)){
+        } else if (!StringUtils.hasLength(encrypt)) {
             LOGGER.error("encrypt为空");
-        }else if(!StringUtils.hasLength(tel)){
+        } else if (!StringUtils.hasLength(tel)) {
             LOGGER.error("tel为空");
-        }else {
-            LOGGER.info("\ntoken:   {},\naccount: {}, \nencrypt: {},\ntel:     {}",token,account,encrypt,tel);
+        } else {
+            LOGGER.info("\ntoken:   {},\naccount: {}, \nencrypt: {},\ntel:     {}", token, account, encrypt, tel);
         }
 
         StringBuffer stringBuffer = new StringBuffer();
         stringBuffer.append("ORCHES-C-TOKEN=").append(token).append(";")
                 .append("ORCHES-C-ACCOUNT=").append(account).append(";")
                 .append("ORCHES-I-ACCOUNT-ENCRYPT=").append(encrypt).append(";");
+
+        Cookie.setToken(token);
+        Cookie.setAccount(account);
+        Cookie.setEncrypt(encrypt);
+        Cookie.setTel(tel);
 
         OkHttpClient okHttpClient = new OkHttpClient.Builder().addInterceptor(new Interceptor() {
             @Override
@@ -56,7 +63,7 @@ public class CaiyunDriverClient {
                 String key = EncryptUtil.getRandomSring(16);
                 Request request = chain.request();
                 String sign = "";
-                if(request.url().url().getHost().equals("yun.139.com")){
+                if (request.url().url().getHost().equals("yun.139.com")) {
                     sign = EncryptUtil.getNewSign(bodyToString(request), dateNowStr, key);
                     request = request.newBuilder()
                             .removeHeader("User-Agent")
@@ -73,36 +80,38 @@ public class CaiyunDriverClient {
                             .addHeader("x-DeviceInfo", "||9|85.0.4183.83|chrome|85.0.4183.83|||windows 10||zh-CN|||")
                             .addHeader("x-SvcType", "1")
                             .addHeader("referer", "https://yun.139.com/w/")
-                            .addHeader("Cookie",stringBuffer.toString())
+                            .addHeader("Cookie", Cookie.getCookie())
                             .build();
                 }
+                System.out.println(Cookie.getCookie());
                 return chain.proceed(request);
             }
         })
-            .readTimeout(1, TimeUnit.MINUTES)
-            .writeTimeout(1, TimeUnit.MINUTES)
-            .connectTimeout(1, TimeUnit.MINUTES)
-            .build();
+                .readTimeout(1, TimeUnit.MINUTES)
+                .writeTimeout(1, TimeUnit.MINUTES)
+                .connectTimeout(1, TimeUnit.MINUTES)
+                .build();
         this.okHttpClient = okHttpClient;
         this.caiyunProperties = caiyunProperties;
     }
 
-    private static String bodyToString(final Request request){
+    private static String bodyToString(final Request request) {
         try {
             final Request copy = request.newBuilder().build();
             final Buffer buffer = new Buffer();
             copy.body().writeTo(buffer);
             return buffer.readUtf8();
         } catch (Exception e) {
-            LOGGER.error("{} in error, {}",request.url().url().getHost(),e);
+            LOGGER.error("{} in error, {}", request.url().url().getHost(), e);
             return "";
         }
     }
+
     private void login() {
         // todo 暂不支持登录功能
     }
 
-    public Response download(String url, HttpServletRequest httpServletRequest, long size ) {
+    public Response download(String url, HttpServletRequest httpServletRequest, long size) {
         Request.Builder builder = new Request.Builder().header("referer", "https://yun.139.com/w/");
         String range = httpServletRequest.getHeader("range");
         boolean isMac = false;
@@ -119,7 +128,7 @@ public class CaiyunDriverClient {
                     range = (range.substring(0, range.lastIndexOf('-') + 1) + size);
                 }
                 builder.header("range", range);
-            } else if (!isMac){
+            } else if (!isMac) {
                 builder.header("range", range);
             }
         }
@@ -140,17 +149,17 @@ public class CaiyunDriverClient {
         }
     }
 
-    public void upload(String url, byte[] bytes, final int offset, final int byteCount,String taskId,long totalSize,long point, String fileName) {
+    public void upload(String url, byte[] bytes, final int offset, final int byteCount, String taskId, long totalSize, long point, String fileName) {
         Request request = new Request.Builder()
-                .addHeader("uploadtaskID",taskId)
+                .addHeader("uploadtaskID", taskId)
                 .addHeader("contentSize", String.valueOf(totalSize))
-                .addHeader("Range","bytes="+point+"-"+(point+byteCount-1))
-                .addHeader("Content-Type","text/plain")
-                .addHeader("Content-Length",String.valueOf(byteCount))
+                .addHeader("Range", "bytes=" + point + "-" + (point + byteCount - 1))
+                .addHeader("Content-Type", "text/plain")
+                .addHeader("Content-Length", String.valueOf(byteCount))
 //                .addHeader("Content-Type","text/plain;name="+ UrlEncodeUtil.encodeURIComponent(fileName))
                 .post(RequestBody.create(MediaType.parse(""), bytes, offset, byteCount))
                 .url(url).build();
-        try (Response response = okHttpClient.newCall(request).execute()){
+        try (Response response = okHttpClient.newCall(request).execute()) {
             LOGGER.info("upload: {}, code: {}", url, response.code());
             if (!response.isSuccessful()) {
                 LOGGER.error("请求失败，url={}, code={}, resp={}", url, response.code(), response.body().string());
@@ -166,10 +175,11 @@ public class CaiyunDriverClient {
         Request request = new Request.Builder()
                 .post(RequestBody.create(MediaType.parse("application/json; charset=utf-8"), bodyAsJson))
                 .url(getTotalUrl(url)).build();
-        try (Response response = okHttpClient.newCall(request).execute()){
+        try (Response response = okHttpClient.newCall(request).execute()) {
             String res = toString(response.body());
-            LOGGER.info("post: {}, code: {}, body: {}", url,response.code(), bodyAsJson);
-            CaiyunResponse<Object> resObject = JsonUtil.readValue(res, new TypeReference<CaiyunResponse<Object>>() {});
+            LOGGER.info("post: {}, code: {}, body: {}", url, response.code(), bodyAsJson);
+            CaiyunResponse<Object> resObject = JsonUtil.readValue(res, new TypeReference<CaiyunResponse<Object>>() {
+            });
             if (!response.isSuccessful() || !resObject.getSuccess()) {
                 LOGGER.error("请求失败，url={}, code={}, resp={}", url, response.code(), res);
                 throw new WebdavException("请求失败：" + url);
@@ -184,7 +194,7 @@ public class CaiyunDriverClient {
         Request request = new Request.Builder()
                 .put(RequestBody.create(MediaType.parse("application/json; charset=utf-8"), JsonUtil.toJson(body)))
                 .url(getTotalUrl(url)).build();
-        try (Response response = okHttpClient.newCall(request).execute()){
+        try (Response response = okHttpClient.newCall(request).execute()) {
             LOGGER.info("put: {}, code: {}", url, response.code());
             if (!response.isSuccessful()) {
                 LOGGER.error("请求失败，url={}, code={}, resp={}", url, response.code(), response.body().string());
@@ -196,13 +206,13 @@ public class CaiyunDriverClient {
         }
     }
 
-    public String get(String url, Map<String, String> params)  {
+    public String get(String url, Map<String, String> params) {
         try {
             HttpUrl.Builder urlBuilder = HttpUrl.parse(getTotalUrl(url)).newBuilder();
             params.forEach(urlBuilder::addQueryParameter);
 
             Request request = new Request.Builder().get().url(urlBuilder.build()).build();
-            try (Response response = okHttpClient.newCall(request).execute()){
+            try (Response response = okHttpClient.newCall(request).execute()) {
                 LOGGER.info("get {}, code {}", urlBuilder.build(), response.code());
                 if (!response.isSuccessful()) {
                     throw new WebdavException("请求失败：" + urlBuilder.build().toString());

@@ -6,6 +6,7 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.vgearen.webdavcaiyundrive.client.CaiyunDriverClient;
 import com.vgearen.webdavcaiyundrive.config.CaiyunProperties;
+import com.vgearen.webdavcaiyundrive.config.Cookie;
 import com.vgearen.webdavcaiyundrive.model.*;
 import com.vgearen.webdavcaiyundrive.model.download.DownloadRequest;
 import com.vgearen.webdavcaiyundrive.model.download.result.DownloadData;
@@ -94,7 +95,7 @@ public class CaiyunDriverClientService {
     private Set<CFile> getCFilesWithNoRepeat(String catalogId) {
         List<CFile> cFiles = fileListFromApi(catalogId, 1, new ArrayList<>());
         cFiles.sort(Comparator.comparing(CFile::getUpdateTime).reversed());
-        Set<CFile> cFileSet  = new LinkedHashSet<>();
+        Set<CFile> cFileSet = new LinkedHashSet<>();
         for (CFile item : cFiles) {
             if (!cFileSet.add(item)) {
                 LOGGER.info("当前目录下{} 存在同名文件：{}，文件大小：{}", catalogId, item.getName(), item.getSize());
@@ -121,10 +122,10 @@ public class CaiyunDriverClientService {
         }
         PathInfo pathInfo = getPathInfo(path);
         CFile cFile = getCFileByPath(pathInfo.getParentPath());
-        if (cFile == null ) {
+        if (cFile == null) {
             return null;
         }
-        return getCFileByParentId(cFile.getFileId(),pathInfo.getName());
+        return getCFileByParentId(cFile.getFileId(), pathInfo.getName());
     }
 
     private CFile getCFileByParentId(String parentId, String name) {
@@ -147,7 +148,7 @@ public class CaiyunDriverClientService {
         }
         int index = path.lastIndexOf("/");
         String parentPath = path.substring(0, index + 1);
-        String name = path.substring(index+1);
+        String name = path.substring(index + 1);
         PathInfo pathInfo = new PathInfo();
         pathInfo.setPath(path);
         pathInfo.setParentPath(parentPath);
@@ -170,7 +171,7 @@ public class CaiyunDriverClientService {
     public List<CFile> fileListFromApi(String catalogID, Integer startNum, List<CFile> all) {
         FileListRequest listQuery = new FileListRequest();
         CommonAccountInfo commonAccountInfo = new CommonAccountInfo();
-        commonAccountInfo.setAccount(this.caiyunProperties.getTel());
+        commonAccountInfo.setAccount(Cookie.getTel());
         listQuery.setCommonAccountInfo(commonAccountInfo);
         listQuery.setCatalogID(catalogID);
         listQuery.setStartNumber(startNum);
@@ -183,62 +184,64 @@ public class CaiyunDriverClientService {
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
 
         String json = client.post("/orchestration/personalCloud/catalog/v1.0/getDisk", listQuery);
-        CaiyunResponse<FileListData> cFileListResult = JsonUtil.readValue(json, new TypeReference<CaiyunResponse<FileListData>>() {});
-        if(null != cFileListResult.getData().getGetDiskResult()){
-           List<CatalogList> catalogLists = cFileListResult.getData().getGetDiskResult().getCatalogList();
-           if(null != catalogLists){
-               for(CatalogList item:cFileListResult.getData().getGetDiskResult().getCatalogList()){
-                   CFile cFile = new CFile();
-                   cFile.setFileType("folder");
-                   cFile.setName(item.getCatalogName());
-                   cFile.setFileId(item.getCatalogID());
-                   try {
-                       Date updateTime = format.parse(item.getUpdateTime());
-                       Date createTime = format.parse(item.getCreateTime());
-                       cFile.setUpdateTime(updateTime);
-                       cFile.setCreateTime(createTime);
-                   } catch (ParseException e) {
-                       e.printStackTrace();
-                   }
-                   all.add(cFile);
-               }
-           }
-           List<ContentList> contentLists = cFileListResult.getData().getGetDiskResult().getContentList();
-           if(null != contentLists){
-               for(ContentList item:cFileListResult.getData().getGetDiskResult().getContentList()){
-                   CFile cFile = new CFile();
-                   cFile.setFileType("file");
-                   cFile.setName(item.getContentName());
-                   cFile.setFileId(item.getContentID());
-                   try {
-                       Date updateTime = format.parse(item.getUpdateTime());
-                       Date createTime = format.parse(item.getUploadTime());
-                       cFile.setUpdateTime(updateTime);
-                       cFile.setCreateTime(createTime);
-                   } catch (ParseException e) {
-                       e.printStackTrace();
-                   }
-                   cFile.setSize(item.getContentSize());
-                   all.add(cFile);
-               }
-           }
+        CaiyunResponse<FileListData> cFileListResult = JsonUtil.readValue(json, new TypeReference<CaiyunResponse<FileListData>>() {
+        });
+        if (null != cFileListResult.getData().getGetDiskResult()) {
+            List<CatalogList> catalogLists = cFileListResult.getData().getGetDiskResult().getCatalogList();
+            if (null != catalogLists) {
+                for (CatalogList item : cFileListResult.getData().getGetDiskResult().getCatalogList()) {
+                    CFile cFile = new CFile();
+                    cFile.setFileType("folder");
+                    cFile.setName(item.getCatalogName());
+                    cFile.setFileId(item.getCatalogID());
+                    try {
+                        Date updateTime = format.parse(item.getUpdateTime());
+                        Date createTime = format.parse(item.getCreateTime());
+                        cFile.setUpdateTime(updateTime);
+                        cFile.setCreateTime(createTime);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    all.add(cFile);
+                }
+            }
+            List<ContentList> contentLists = cFileListResult.getData().getGetDiskResult().getContentList();
+            if (null != contentLists) {
+                for (ContentList item : cFileListResult.getData().getGetDiskResult().getContentList()) {
+                    CFile cFile = new CFile();
+                    cFile.setFileType("file");
+                    cFile.setName(item.getContentName());
+                    cFile.setFileId(item.getContentID());
+                    try {
+                        Date updateTime = format.parse(item.getUpdateTime());
+                        Date createTime = format.parse(item.getUploadTime());
+                        cFile.setUpdateTime(updateTime);
+                        cFile.setCreateTime(createTime);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    cFile.setSize(item.getContentSize());
+                    all.add(cFile);
+                }
+            }
 
-       }
+        }
         if (Integer.valueOf(cFileListResult.getData().getGetDiskResult().getIsCompleted()).equals(1)) {
             return all;
         }
-        return fileListFromApi(catalogID, startNum + 100 , all);
+        return fileListFromApi(catalogID, startNum + 100, all);
     }
 
-    public Response download(String path, HttpServletRequest request, long size ) {
+    public Response download(String path, HttpServletRequest request, long size) {
         CFile cFile = getCFileByPath(path);
         CommonAccountInfo commonAccountInfo = new CommonAccountInfo();
-        commonAccountInfo.setAccount(this.caiyunProperties.getTel());
+        commonAccountInfo.setAccount(Cookie.getTel());
         DownloadRequest downloadRequest = new DownloadRequest();
         downloadRequest.setContentID(cFile.getFileId());
         downloadRequest.setCommonAccountInfo(commonAccountInfo);
         String json = client.post("/orchestration/personalCloud/uploadAndDownload/v1.0/downloadRequest", downloadRequest);
-        CaiyunResponse<DownloadData> downloadUrl = JsonUtil.readValue(json, new TypeReference<CaiyunResponse<DownloadData>>() {});
+        CaiyunResponse<DownloadData> downloadUrl = JsonUtil.readValue(json, new TypeReference<CaiyunResponse<DownloadData>>() {
+        });
         String url = downloadUrl.getData().getDownloadURL();
         LOGGER.debug("{} url = {}", path, url);
         return client.download(url, request, size);
@@ -262,7 +265,7 @@ public class CaiyunDriverClientService {
             remove(path);
         }
 
-        if(pathInfo.getName().startsWith("._") || pathInfo.getName().startsWith("~$") || ".DS_Store".equals(pathInfo.getName())){
+        if (pathInfo.getName().startsWith("._") || pathInfo.getName().startsWith("~$") || ".DS_Store".equals(pathInfo.getName())) {
             // 临时文件不上传
             return;
         }
@@ -270,7 +273,7 @@ public class CaiyunDriverClientService {
 
         int chunkCount = (int) Math.ceil(((double) size) / chunkSize); // 进1法
         CommonAccountInfo commonAccountInfo = new CommonAccountInfo();
-        commonAccountInfo.setAccount(this.caiyunProperties.getTel());
+        commonAccountInfo.setAccount(Cookie.getTel());
         PreUploadRequest preUploadRequest = new PreUploadRequest();
         preUploadRequest.setParentCatalogID(parent.getFileId());
         preUploadRequest.setManualRename(2);
@@ -286,9 +289,10 @@ public class CaiyunDriverClientService {
 
         LOGGER.info("开始上传文件，文件名：{}，总大小：{}, 文件块数量：{}", path, size, chunkCount);
         String json = client.post("/orchestration/personalCloud/uploadAndDownload/v1.0/pcUploadFileRequest", preUploadRequest);
-        CaiyunResponse<PreUploadData> preUploadRes = JsonUtil.readValue(json, new TypeReference<CaiyunResponse<PreUploadData>>() {});
+        CaiyunResponse<PreUploadData> preUploadRes = JsonUtil.readValue(json, new TypeReference<CaiyunResponse<PreUploadData>>() {
+        });
         UploadResult uploadResult = preUploadRes.getData().getUploadResult();
-        if(null == uploadResult.getRedirectionUrl()){
+        if (null == uploadResult.getRedirectionUrl()) {
             LOGGER.info("{} 秒传成功", path);
             return;
         }
@@ -297,7 +301,7 @@ public class CaiyunDriverClientService {
             virtualCFileService.createCFile(parent.getFileId(), preUploadRes.getData());
         }
         byte[] buffer = new byte[chunkSize];
-        if(chunkCount == 0){
+        if (chunkCount == 0) {
             chunkCount++;
         }
         long point = 0;
@@ -309,7 +313,7 @@ public class CaiyunDriverClientService {
                     return;
                 }
                 client.upload(uploadResult.getRedirectionUrl()
-                        , buffer, 0, read, uploadResult.getUploadTaskID(),size,point
+                        , buffer, 0, read, uploadResult.getUploadTaskID(), size, point
                         , uploadResult.getNewContentIDList().get(0).getContentName());
                 point += read;
                 virtualCFileService.updateLength(parent.getFileId()
@@ -335,13 +339,13 @@ public class CaiyunDriverClientService {
             return;
         }
         CommonAccountInfo commonAccountInfo = new CommonAccountInfo();
-        commonAccountInfo.setAccount(this.caiyunProperties.getTel());
+        commonAccountInfo.setAccount(Cookie.getTel());
 
         TaskInfo taskInfo = new TaskInfo();
-        if(cFile.getFileType().equalsIgnoreCase(FileType.folder.name())){
+        if (cFile.getFileType().equalsIgnoreCase(FileType.folder.name())) {
             taskInfo.setCatalogInfoList(Arrays.asList(cFile.getFileId()));
             taskInfo.setContentInfoList(new ArrayList<>());
-        }else {
+        } else {
             taskInfo.setContentInfoList(Arrays.asList(cFile.getFileId()));
             taskInfo.setCatalogInfoList(new ArrayList<>());
         }
@@ -361,13 +365,13 @@ public class CaiyunDriverClientService {
     public void createFolder(String path) {
         path = normalizingPath(path);
         PathInfo pathInfo = getPathInfo(path);
-        CFile parent =  getCFileByPath(pathInfo.getParentPath());
+        CFile parent = getCFileByPath(pathInfo.getParentPath());
         if (parent == null) {
             LOGGER.warn("创建目录失败，未发现父级目录：{}", pathInfo.getParentPath());
             return;
         }
         CommonAccountInfo commonAccountInfo = new CommonAccountInfo();
-        commonAccountInfo.setAccount(this.caiyunProperties.getTel());
+        commonAccountInfo.setAccount(Cookie.getTel());
 
         CreateCatalogExtReq createCatalogExtReq = new CreateCatalogExtReq();
         createCatalogExtReq.setNewCatalogName(pathInfo.getName());
@@ -378,10 +382,11 @@ public class CaiyunDriverClientService {
         createFileRequest.setCreateCatalogExtReq(createCatalogExtReq);
 
         String json = client.post("/orchestration/personalCloud/catalog/v1.0/createCatalogExt", createFileRequest);
-        CaiyunResponse<CatalogInfoData> createFolderRes = JsonUtil.readValue(json, new TypeReference<CaiyunResponse<CatalogInfoData>>() {});
+        CaiyunResponse<CatalogInfoData> createFolderRes = JsonUtil.readValue(json, new TypeReference<CaiyunResponse<CatalogInfoData>>() {
+        });
         CatalogInfo catalogInfo = createFolderRes.getData().getCatalogInfo();
         if (catalogInfo.getCatalogName() == null) {
-            LOGGER.error("创建目录{}失败: {}",path, json);
+            LOGGER.error("创建目录{}失败: {}", path, json);
         }
         if (!catalogInfo.getCatalogName().equals(pathInfo.getName())) {
             LOGGER.info("创建目录{}与原值{}不同，重命名", catalogInfo.getCatalogName(), pathInfo.getName());
@@ -390,23 +395,24 @@ public class CaiyunDriverClientService {
         }
         clearCache();
     }
+
     public void rename(String sourcePath, String newName) {
         sourcePath = normalizingPath(sourcePath);
         CFile cFile = getCFileByPath(sourcePath);
-        if(cFile.getFileType().equalsIgnoreCase(FileType.folder.name())){
+        if (cFile.getFileType().equalsIgnoreCase(FileType.folder.name())) {
             RenameFolderRequest renameFolderRequest = new RenameFolderRequest();
             renameFolderRequest.setCatalogID(cFile.getFileId());
             renameFolderRequest.setCatalogName(newName);
             CommonAccountInfo commonAccountInfo = new CommonAccountInfo();
-            commonAccountInfo.setAccount(this.caiyunProperties.getTel());
+            commonAccountInfo.setAccount(Cookie.getTel());
             renameFolderRequest.setCommonAccountInfo(commonAccountInfo);
             client.post("/orchestration/personalCloud/catalog/v1.0/updateCatalogInfo", renameFolderRequest);
-        }else {
+        } else {
             RenameContentRequest renameContentRequest = new RenameContentRequest();
             renameContentRequest.setContentID(cFile.getFileId());
             renameContentRequest.setContentName(newName);
             CommonAccountInfo commonAccountInfo = new CommonAccountInfo();
-            commonAccountInfo.setAccount(this.caiyunProperties.getTel());
+            commonAccountInfo.setAccount(Cookie.getTel());
             renameContentRequest.setCommonAccountInfo(commonAccountInfo);
             client.post("/orchestration/personalCloud/content/v1.0/updateContentInfo", renameContentRequest);
 
@@ -422,13 +428,13 @@ public class CaiyunDriverClientService {
         CFile targetCFile = getCFileByPath(targetPath);
 
         CommonAccountInfo commonAccountInfo = new CommonAccountInfo();
-        commonAccountInfo.setAccount(this.caiyunProperties.getTel());
+        commonAccountInfo.setAccount(Cookie.getTel());
 
         TaskInfo taskInfo = new TaskInfo();
-        if(sourceCFile.getFileType().equalsIgnoreCase(FileType.folder.name())){
+        if (sourceCFile.getFileType().equalsIgnoreCase(FileType.folder.name())) {
             taskInfo.setCatalogInfoList(Arrays.asList(sourceCFile.getFileId()));
             taskInfo.setContentInfoList(new ArrayList<>());
-        }else {
+        } else {
             taskInfo.setContentInfoList(Arrays.asList(sourceCFile.getFileId()));
             taskInfo.setCatalogInfoList(new ArrayList<>());
         }
@@ -445,6 +451,7 @@ public class CaiyunDriverClientService {
         client.post("/orchestration/personalCloud/batchOprTask/v1.0/createBatchOprTask", operateRequest);
         clearCache();
     }
+
     private void clearCache() {
         cFilesCache.invalidateAll();
     }
