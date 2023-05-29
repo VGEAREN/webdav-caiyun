@@ -169,13 +169,13 @@ public class DoGet extends DoHead {
                         childrenTemp.append("<td>");
                         if (obj != null )
                         {
-                            childrenTemp.append(obj.getResourceLength());
+                            childrenTemp.append(formatSize(obj.getResourceLength()));
                         }
                         else
                         {
                             childrenTemp.append("Unknown");
                         }
-                        childrenTemp.append(" Bytes</td>");
+                        childrenTemp.append("</td>");
                     }
                     if (obj != null && obj.getCreationDate() != null)
                     {
@@ -206,7 +206,16 @@ public class DoGet extends DoHead {
             }
         }
     }
-
+    public static String formatSize(long bytes) {
+        String[] sizes = {"Bytes", "KB", "MB", "GB"};
+        double size = bytes;
+        int index = 0;
+        while (size >= 1024 && index < sizes.length - 1) {
+            size /= 1024;
+            index++;
+        }
+        return String.format("%.2f %s", size, sizes[index]);
+    }
     /**
      * Return the CSS styles used to display the HTML representation
      * of the webdav content.
