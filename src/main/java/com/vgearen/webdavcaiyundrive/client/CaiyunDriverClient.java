@@ -29,30 +29,22 @@ public class CaiyunDriverClient {
     public CaiyunDriverClient(CaiyunProperties caiyunProperties) {
 
         String token = caiyunProperties.getToken();
-        String account = caiyunProperties.getAccount();
-        String encrypt = caiyunProperties.getEncrypt();
         String tel = caiyunProperties.getTel();
 
         if (!StringUtils.hasLength(token)) {
             LOGGER.error("token为空");
-        } else if (!StringUtils.hasLength(account)) {
-            LOGGER.error("account为空");
-        } else if (!StringUtils.hasLength(encrypt)) {
-            LOGGER.error("encrypt为空");
-        } else if (!StringUtils.hasLength(tel)) {
+        }  else if (!StringUtils.hasLength(tel)) {
             LOGGER.error("tel为空");
         } else {
-            LOGGER.info("\ntoken:   {},\naccount: {}, \nencrypt: {},\ntel:     {}", token, account, encrypt, tel);
+            LOGGER.info("\ntoken:   {},\ntel:     {}", token, tel);
         }
 
-        StringBuffer stringBuffer = new StringBuffer();
-        stringBuffer.append("ORCHES-C-TOKEN=").append(token).append(";")
-                .append("ORCHES-C-ACCOUNT=").append(account).append(";")
-                .append("ORCHES-I-ACCOUNT-ENCRYPT=").append(encrypt).append(";");
-
+//        StringBuffer stringBuffer = new StringBuffer();
+//        stringBuffer.append("ORCHES-C-TOKEN=").append(token).append(";")
+//                .append("ORCHES-C-ACCOUNT=").append(account).append(";")
+//                .append("ORCHES-I-ACCOUNT-ENCRYPT=").append(encrypt).append(";");
+//
         Cookie.setToken(token);
-        Cookie.setAccount(account);
-        Cookie.setEncrypt(encrypt);
         Cookie.setTel(tel);
 
         OkHttpClient okHttpClient = new OkHttpClient.Builder().addInterceptor(new Interceptor() {
@@ -80,7 +72,7 @@ public class CaiyunDriverClient {
                             .addHeader("x-DeviceInfo", "||9|85.0.4183.83|chrome|85.0.4183.83|||windows 10||zh-CN|||")
                             .addHeader("x-SvcType", "1")
                             .addHeader("referer", "https://yun.139.com/w/")
-                            .addHeader("Cookie", Cookie.getCookie())
+                            .addHeader("Authorization", token)
                             .build();
                 }
                 System.out.println(Cookie.getCookie());

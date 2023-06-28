@@ -17,14 +17,12 @@
 ### Jar包运行
 [点击下载JAR](https://github.com/VGEAREN/webdav-caiyun/releases/latest)
 ```bash
-[root@localhost ~]# java -jar caiyun-webdav.jar --caiyun.account="orches-c-account" --caiyun.token="orches-c-token" --caiyun.encrypt="orches-i-account-encrypt" --caiyun.tel="user telnum"
+[root@localhost ~]# java -jar caiyun-webdav.jar --caiyun.token="authorization" --caiyun.tel="user telnum"
 ```
 
 其中：
 
-- `caiyun.account`：网页版和彩云Cookie中的 **ORCHES-C-ACCOUNT** 字段
-- `caiyun.token`：Cookie中的 **ORCHES-C-TOKEN** 
-- `caiyun.encrypt`：Cookie中的 **ORCHES-I-ACCOUNT-ENCRYPT** 
+- `caiyun.token`：Cookie中的 **authorization** 
 - `caiyun.tel`： 和彩云的注册号码
 - `caiyun.auth.user-name`：`可选` 默认admin
 - `caiyun.auth.password`：`可选` 默认admin
@@ -33,7 +31,7 @@
 ### Docker
 
 ```bash
-[root@localhost ~]# docker run -d --name=caiyun-webdav --restart=unless-stopped -p 8080:8080  -v /etc/localtime:/etc/localtime -e TZ="Asia/Shanghai" -e JAVA_OPTS="-Xmx512m" -e CAIYUN_ACCOUNT="ORCHES-C-ACCOUNT" -e CAIYUN_TOKEN="ORCHES-C-TOKEN" -e CAIYUN_ENCRYPT="ORCHES-I-ACCOUNT-ENCRYPT" -e CAIYUN_TEL="YOUR PHONE" vgearen/caiyun-webdav
+[root@localhost ~]# docker run -d --name=caiyun-webdav --restart=unless-stopped -p 8080:8080  -v /etc/localtime:/etc/localtime -e TZ="Asia/Shanghai" -e JAVA_OPTS="-Xmx512m" -e CAIYUN_TOKEN="ORCHES-C-TOKEN" -e CAIYUN_TEL="YOUR PHONE" vgearen/caiyun-webdav
 ```
 
 默认认证账号密码admin/admin，需要修改添加参数` -e CAIYUN_AUTH_USER_NAME="USERNAME" -e CAIYUN_AUTH_PASSWORD="PASSWORD"` 
@@ -54,9 +52,7 @@ services:
     tty: true
     environment:
       - TZ=Asia/Shanghai
-      - CAIYUN_ACCOUNT=<change me>
       - CAIYUN_TOKEN=<change me>
-      - CAIYUN_ENCRYPT=<change me>
       - CAIYUN_TEL=<change me>
       # - CAIYUN_AUTH_USER_NAME=<change me>
       # - CAIYUN_AUTH_PASSWORD=<change me>
@@ -80,7 +76,7 @@ services:
 
   通过`http://localhost:8080/update?token=[token值]`更新token，localhost改为webdav的ip即可
 
-  同理，如果需要更新其他的可以直接加参数：`account`、`encrypt`、`tel`
+  同理，如果需要更新其他的可以直接加参数：`tel`
 
   **如果重启应用就会用回原来的token**
 
