@@ -52,7 +52,7 @@ services:
     tty: true
     environment:
       - TZ=Asia/Shanghai
-      - CAIYUN_TOKEN=<change me>
+      - "CAIYUN_TOKEN=<change me>" # 不想用双引号可以这样 CAIYUN_TOKEN=Basic\ xxxxxx
       - CAIYUN_TEL=<change me>
       # - CAIYUN_AUTH_USER_NAME=<change me>
       # - CAIYUN_AUTH_PASSWORD=<change me>
